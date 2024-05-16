@@ -34,5 +34,6 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/client 
         sed -i "s|\<driver.version>.*<\/driver.version>|<driver.version>{{ matrix.driver_version }}<\/driver.version>|" pom.xml
+        cat pom.xml
         mvn compile exec:java -Dexec.mainClass="org.example.Main"
         
