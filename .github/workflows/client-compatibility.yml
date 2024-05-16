@@ -1,0 +1,32 @@
+name: Tests against Java Driver Verions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: main
+
+    - name: mvn install
+      run: cd $GITHUB_WORKSPACE/main && mvn install
+      
+    - name: Checkout client
+      uses: actions/checkout@v4
+      with:
+        repository: SiyaoIsHiding/driver-example-app
+        token: ${{ secrets.GH_PAT }} # `GH_PAT` is a secret that contains your PAT
+        ref: github-action
+        path: client
+
+    - name: Run client app
+      run: cd $GITHUB_WORKSPACE/client && mvn compile exec:java -Dexec.mainClass="org.example.Main"
+        
