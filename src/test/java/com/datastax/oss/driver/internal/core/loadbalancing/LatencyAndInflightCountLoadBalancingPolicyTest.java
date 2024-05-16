@@ -125,7 +125,7 @@ public class LatencyAndInflightCountLoadBalancingPolicyTest
     // Then
     // nodes 1, 3 and 5 always first, round-robin on the rest
     // node 3 faster -> swap
-    assertThat(plan1).containsExactly(node1, node3, node1, node2, node4);
+    assertThat(plan1).containsExactly(node5, node3, node1, node2, node4);
     assertThat(plan2).containsExactly(node5, node3, node1, node4, node2);
 
     then(latencyPolicy).should(times(2)).shuffleHead(any(), anyInt());
