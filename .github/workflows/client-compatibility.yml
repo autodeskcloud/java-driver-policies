@@ -33,6 +33,6 @@ jobs:
     - name: Run client app
       run: |
         cd $GITHUB_WORKSPACE/client 
-        sed -i -E "s|\(<driver.version>\)[^<]*\(</driver.version>\)|\1${{ matrix.driver_version }}\2|" pom.xml
+        sed -i "s|\<driver.version>.*<\/driver.version>|<driver.version>{{ matrix.driver_version }}<\/driver.version>|" pom.xml
         mvn compile exec:java -Dexec.mainClass="org.example.Main"
         
