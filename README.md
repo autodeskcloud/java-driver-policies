@@ -1,5 +1,5 @@
-# Complimentary Load Balancing Policies for Apache Cassandra Java Driver
-This package contains two load balancing policies to be used with the [Apache Cassandra Java Driver](https://github.com/apache/cassandra-java-driver) (version 4.10.0+) - `LatencyAndInflightCountLoadBalancingPolicy` and `LatencySensitiveLoadBalancingPolicy`.
+# Supplementary Policies for Apache Cassandra Java Driver
+Currently, this package contains two load balancing policies to be used with the [Apache Cassandra Java Driver](https://github.com/apache/cassandra-java-driver) (version 4.10.0+) - `LatencyAndInflightCountLoadBalancingPolicy` and `LatencySensitiveLoadBalancingPolicy`.
 
 ## Get Started
 To use either of the policies, you need to include both the Java driver and this package as dependencies.
@@ -11,7 +11,7 @@ To use either of the policies, you need to include both the Java driver and this
         </dependency>
         <dependency>
             <groupId>com.datastax.oss</groupId>
-            <artifactId>driver-load-balancing-policies</artifactId>
+            <artifactId>java-driver-policies</artifactId>
             <version>1.0</version>
         </dependency>
 ```
