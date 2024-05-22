@@ -44,7 +44,7 @@ Below is the client-side latency and the throughput of the 3.x driver, `LatencyA
 
 ![LatencyAndInflightCountLoadBalancingPolicy-toggling](./pics/LNIFC-toggling.png)
 
-We can see both `LatencyAndInflightCountLoadBalancingPolicy` and 4.x `DefaultLoadBalancingPolicy`'s client-side latency almost doesn't change, while the 3.x driver's latency raises significantly.
+We can see that the client-side latency for both `LatencyAndInflightCountLoadBalancingPolicy` and the 4.x `DefaultLoadBalancingPolicy` almost doesn't change while the 3.x driver's latency raises significantly.
 
 Because changes in node status at short intervals, such as garbage collection, are common in the production environment.
-Therefore, we recommend using the 4.x `DefaultLoadBalancingPolicy` or `LatencyAndInflightCountLoadBalancingPolicy` for general use, and `LatencySensitiveLoadBalancingPolicy` when you anticipate prolonged delays in node responsiveness.
+We believe quick changes in node status are more common in production environments and therefore recommend either the 4.x `DefaultLoadBalancingPolicy` or `LatencyAndInflightCountLoadBalancingPolicy` for general use.  You should consider `LatencySensitiveLoadBalancingPolicy` when you anticipate prolonged delays in node responsiveness.
