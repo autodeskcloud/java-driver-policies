@@ -5,7 +5,7 @@ Currently, this package contains two load balancing policies to be used with the
 To use either of the policies, you need to include both the Java driver and this package as dependencies.
 ```xml
         <dependency>
-            <groupId>org.apache.cassandra</groupId>
+            <groupId>org.apache.oss</groupId>
             <artifactId>java-driver-core</artifactId>
             <version>4.10.0</version>
         </dependency>
