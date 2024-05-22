@@ -26,4 +26,25 @@ datastax-java-driver.basic.load-balancing-policy {
 ## How to Choose a Load Balancing Policy
 We recommend the `DefaultLoadBalancingPolicy` that comes with the Java Driver for general use. 
 This policy leverages real-time measurements and swiftly responds to changes in node status at short intervals, such as those caused by garbage collection or compaction—common factors that can slow down nodes. 
+
 However, if you anticipate prolonged delays in node responsiveness, such as during network upgrades or heavy data migrations, you might consider opting for the `LatencyAndInflightCountLoadBalancingPolicy` or `LatencySensitiveLoadBalancingPolicy`.
+
+`LatencySensitiveLoadBalancingPolicy` behaves the closest to the 3.x java driver's `TokenAwarePolicy(LatencyAwarePolicy(DCAwareRoundRobinPolicy))`. 
+They have an advantage over 4.x `DefaultLoadBalancingPolicy` when nodes are slowed for a long time, because they both depend on historical data. 
+Below is the p75 and mean client side latencies of the 3.x driver, `LatencySensitiveLoadBalancingPolicy`, and 4.x driver, for a cluster when one replica for each request is slowed down for 30 minutes.
+
+![LatencySensitiveLoadBalancingPolicy-latencies-30mins](./pics/LS-latencies-30mins.png)
+
+`LatencyAndInflightCountLoadBalancingPolicy` also has such an advantage in the 30-minute scenario. See the following chart.
+
+![LatencyAndInflightCountLoadBalancingPolicy-latencies-30mins](./pics/LNIFC-latencies-30mins.png)
+
+However, both `LatencyAndInflightCountLoadBalancingPolicy` and 4.x `DefaultLoadBalancingPolicy` have a significant advantage when nodes are slowed for a short time, because they use real-time measurements, specifically count of in-flight requests.
+Below is the client-side latency and the throughput of the 3.x driver, `LatencyAndInflightCountLoadBalancingPolicy`, and 4.x driver, for a cluster when one replica for each request is toggling being slowed every 2 minutes.
+
+![LatencyAndInflightCountLoadBalancingPolicy-toggling](./pics/LNIFC-toggling.png)
+
+We can see both `LatencyAndInflightCountLoadBalancingPolicy` and 4.x `DefaultLoadBalancingPolicy`'s client-side latency almost doesn't change, while the 3.x driver's latency raises significantly.
+
+Because changes in node status at short intervals, such as garbage collection, are common in the production environment.
+Therefore, we recommend using the 4.x `DefaultLoadBalancingPolicy` or `LatencyAndInflightCountLoadBalancingPolicy` for general use, and `LatencySensitiveLoadBalancingPolicy` when you anticipate prolonged delays in node responsiveness.
