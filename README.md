@@ -5,7 +5,7 @@ Currently, this package contains two load balancing policies to be used with the
 To use either of the policies, you need to include both the Java driver and this package as dependencies.
 ```xml
         <dependency>
-            <groupId>org.apache.oss</groupId>
+            <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
             <version>4.10.0</version>
         </dependency>
@@ -46,5 +46,4 @@ Below is the client-side latency and the throughput of the 3.x driver, `LatencyA
 
 We can see that the client-side latency for both `LatencyAndInflightCountLoadBalancingPolicy` and the 4.x `DefaultLoadBalancingPolicy` almost doesn't change while the 3.x driver's latency raises significantly.
 
-Because changes in node status at short intervals, such as garbage collection, are common in the production environment.
 We believe quick changes in node status are more common in production environments and therefore recommend either the 4.x `DefaultLoadBalancingPolicy` or `LatencyAndInflightCountLoadBalancingPolicy` for general use.  You should consider `LatencySensitiveLoadBalancingPolicy` when you anticipate prolonged delays in node responsiveness.
