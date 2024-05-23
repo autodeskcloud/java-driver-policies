@@ -23,8 +23,6 @@ import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.metadata.Node;
 import com.datastax.oss.driver.api.core.session.Request;
 import com.datastax.oss.driver.api.core.session.Session;
-import com.datastax.oss.driver.internal.core.pool.ChannelPool;
-import com.datastax.oss.driver.internal.core.session.DefaultSession;
 import com.datastax.oss.driver.internal.core.util.ArrayUtils;
 import com.datastax.oss.driver.internal.core.util.collection.QueryPlan;
 import com.datastax.oss.driver.internal.core.util.collection.SimpleQueryPlan;
@@ -37,7 +35,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
-
 import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +71,10 @@ import org.slf4j.LoggerFactory;
  *       implementation will infer the local datacenter from the implicit contact point (localhost).
  * </ol>
  *
- * <p><b>Query plan</b>: This implementation differs from the default policy by maintaining an exponential moving
- * average of the latencies for each node and using this score to exclude the slow replicas. It still reorders the
- * first two replicas in the query plan based on in-flight requests count, just as the default policy does.
+ * <p><b>Query plan</b>: This implementation differs from the default policy by maintaining an
+ * exponential moving average of the latencies for each node and using this score to exclude the
+ * slow replicas. It still reorders the first two replicas in the query plan based on in-flight
+ * requests count, just as the default policy does.
  */
 @ThreadSafe
 public class LatencyAndInflightCountLoadBalancingPolicy extends DefaultLoadBalancingPolicy {
@@ -317,5 +315,4 @@ public class LatencyAndInflightCountLoadBalancingPolicy extends DefaultLoadBalan
       }
     }
   }
-
 }

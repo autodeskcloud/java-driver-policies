@@ -36,7 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class LatencySensitiveLoadBalancingPolicyTest extends BasicLoadBalancingPolicyQueryPlanTest {
+public class LatencySensitiveLoadBalancingPolicyTest extends LoadBalancingPolicyTestBase {
 
   private static final long T1 = 100;
 
@@ -58,14 +58,6 @@ public class LatencySensitiveLoadBalancingPolicyTest extends BasicLoadBalancingP
     diceRoll = 4;
     given(node4.getDatacenter()).willReturn("dc1");
     given(node5.getDatacenter()).willReturn("dc1");
-    given(session.getPools())
-        .willReturn(
-            ImmutableMap.of(
-                node1, pool1,
-                node2, pool2,
-                node3, pool3,
-                node4, pool4,
-                node5, pool5));
     given(context.getMetadataManager()).willReturn(metadataManager);
     given(metadataManager.getMetadata()).willReturn(metadata);
     given(metadataManager.getContactPoints()).willReturn(ImmutableSet.of(node1));

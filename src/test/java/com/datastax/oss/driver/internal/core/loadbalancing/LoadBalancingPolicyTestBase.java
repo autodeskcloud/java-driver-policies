@@ -16,21 +16,32 @@
 package com.datastax.oss.driver.internal.core.loadbalancing;
 
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
+import com.datastax.dse.driver.internal.core.tracker.MultiplexingRequestTracker;
+import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverConfig;
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
 import com.datastax.oss.driver.api.core.loadbalancing.LoadBalancingPolicy;
+import com.datastax.oss.driver.api.core.metadata.Metadata;
 import com.datastax.oss.driver.api.core.metadata.Node;
+import com.datastax.oss.driver.api.core.metadata.TokenMap;
+import com.datastax.oss.driver.api.core.session.Request;
 import com.datastax.oss.driver.internal.core.DefaultConsistencyLevelRegistry;
 import com.datastax.oss.driver.internal.core.context.InternalDriverContext;
 import com.datastax.oss.driver.internal.core.metadata.DefaultNode;
 import com.datastax.oss.driver.internal.core.metadata.MetadataManager;
+import com.datastax.oss.driver.internal.core.session.DefaultSession;
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableList;
+import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableSet;
+import com.datastax.oss.protocol.internal.util.Bytes;
+import java.nio.ByteBuffer;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -57,6 +68,16 @@ public abstract class LoadBalancingPolicyTestBase {
 
   @Captor protected ArgumentCaptor<ILoggingEvent> loggingEventCaptor;
 
+  protected static final CqlIdentifier KEYSPACE = CqlIdentifier.fromInternal("ks");
+  protected static final ByteBuffer ROUTING_KEY = Bytes.fromHexString("0xdeadbeef");
+
+  @Mock protected Request request;
+  @Mock protected DefaultSession session;
+  @Mock protected Metadata metadata;
+  @Mock protected TokenMap tokenMap;
+
+  protected BasicLoadBalancingPolicy policy;
+
   protected Logger logger;
 
   @Before
@@ -81,6 +102,7 @@ public abstract class LoadBalancingPolicyTestBase {
     when(defaultProfile.getString(DefaultDriverOption.REQUEST_CONSISTENCY)).thenReturn("ONE");
 
     when(context.getMetadataManager()).thenReturn(metadataManager);
+    when(context.getRequestTracker()).thenReturn(mock(MultiplexingRequestTracker.class));
 
     logger =
         (Logger) LoggerFactory.getLogger("com.datastax.oss.driver.internal.core.loadbalancing");
@@ -92,7 +114,15 @@ public abstract class LoadBalancingPolicyTestBase {
 
     when(context.getLocalDatacenter(anyString())).thenReturn(null);
     when(context.getConsistencyLevelRegistry()).thenReturn(new DefaultConsistencyLevelRegistry());
+
+    when(metadataManager.getContactPoints()).thenReturn(ImmutableSet.of(node1));
+    when(metadataManager.getMetadata()).thenReturn(metadata);
+    when(metadata.getTokenMap()).thenAnswer(invocation -> Optional.of(this.tokenMap));
+
+    policy = createAndInitPolicy();
   }
+
+  protected abstract BasicLoadBalancingPolicy createAndInitPolicy();
 
   @After
   public void teardown() {

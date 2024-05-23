@@ -75,8 +75,9 @@ import org.slf4j.LoggerFactory;
  *       implementation will infer the local datacenter from the implicit contact point (localhost).
  * </ol>
  *
- * <p><b>Query plan</b>: This implementation differs from the default policy by maintaining an exponential moving
- * average of the latencies for each node and using this score to reorder the first two nodes in the query plan.
+ * <p><b>Query plan</b>: This implementation differs from the default policy by maintaining an
+ * exponential moving average of the latencies for each node and using this score to reorder the
+ * first two nodes in the query plan.
  */
 @ThreadSafe
 public class LatencySensitiveLoadBalancingPolicy extends DefaultLoadBalancingPolicy {

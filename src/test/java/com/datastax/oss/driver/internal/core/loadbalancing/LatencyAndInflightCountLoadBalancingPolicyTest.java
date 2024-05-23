@@ -36,8 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-public class LatencyAndInflightCountLoadBalancingPolicyTest
-    extends BasicLoadBalancingPolicyQueryPlanTest {
+public class LatencyAndInflightCountLoadBalancingPolicyTest extends LoadBalancingPolicyTestBase {
 
   private static final long T1 = 100;
 
