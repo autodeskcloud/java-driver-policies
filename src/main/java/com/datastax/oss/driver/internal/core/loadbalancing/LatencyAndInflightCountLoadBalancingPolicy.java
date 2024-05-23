@@ -90,6 +90,8 @@ public class LatencyAndInflightCountLoadBalancingPolicy extends DefaultLoadBalan
   // Just a copy of 4.18.0 java driver NEWLY_UP_INTERVAL_NANOS
   private static final long NEWLY_UP_INTERVAL = MINUTES.toNanos(1);
 
+  private final boolean avoidSlowReplicas;
+
   public LatencyAndInflightCountLoadBalancingPolicy(
       @NonNull DriverContext context, @NonNull String profileName) {
     super(context, profileName);
@@ -101,11 +103,17 @@ public class LatencyAndInflightCountLoadBalancingPolicy extends DefaultLoadBalan
           }
         };
     latencies = CacheBuilder.newBuilder().weakKeys().build(cacheLoader);
+    this.avoidSlowReplicas =
+            profile.getBoolean(DefaultDriverOption.LOAD_BALANCING_POLICY_SLOW_AVOIDANCE, true);
   }
 
   @NonNull
   @Override
   public Queue<Node> newQueryPlan(@Nullable Request request, @Nullable Session session) {
+    if (!avoidSlowReplicas) {
+      return super.newQueryPlan(request, session);
+    }
+
     // Take a snapshot since the set is concurrent:
     Object[] currentNodes = getLiveNodes().dc(getLocalDatacenter()).toArray();
 
