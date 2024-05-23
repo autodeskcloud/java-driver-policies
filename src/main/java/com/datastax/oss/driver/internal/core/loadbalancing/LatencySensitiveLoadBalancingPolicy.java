@@ -44,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The default load balancing policy implementation.
+ * The load balancing policy that considers mostly latency
  *
  * <p>To activate this policy, modify the {@code basic.load-balancing-policy} section in the driver
  * configuration, for example:
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * <pre>
  * datastax-java-driver {
  *   basic.load-balancing-policy {
- *     class = DefaultLoadBalancingPolicy
+ *     class = LatencySensitiveLoadBalancingPolicy
  *     local-datacenter = datacenter1
  *   }
  * }
@@ -75,12 +75,8 @@ import org.slf4j.LoggerFactory;
  *       implementation will infer the local datacenter from the implicit contact point (localhost).
  * </ol>
  *
- * <p><b>Query plan</b>: This implementation prioritizes replica nodes over non-replica ones; if
- * more than one replica is available, the replicas will be shuffled; if more than 2 replicas are
- * available, they will be ordered from most healthy to least healthy ("Power of 2 choices" or busy
- * node avoidance algorithm). Non-replica nodes will be included in a round-robin fashion. If the
- * local datacenter is defined (see above), query plans will only include local nodes, never remote
- * ones; if it is unspecified however, query plans may contain nodes from different datacenters.
+ * <p><b>Query plan</b>: This implementation differs from the default policy by maintaining an exponential moving
+ * average of the latencies for each node and using this score to reorder the first two nodes in the query plan.
  */
 @ThreadSafe
 public class LatencySensitiveLoadBalancingPolicy extends DefaultLoadBalancingPolicy {

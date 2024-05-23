@@ -140,7 +140,7 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
 
   @Test
   public void
-      should_use_round_robin_when_token_map_returns_no_replicas_using_request_keyspace_and_routing_key() {
+  should_use_round_robin_when_token_map_returns_no_replicas_using_request_keyspace_and_routing_key() {
     when(request.getRoutingKeyspace()).thenReturn(KEYSPACE);
     when(request.getRoutingKey()).thenReturn(ROUTING_KEY);
     when(tokenMap.getReplicas(KEYSPACE, ROUTING_KEY)).thenReturn(Collections.emptySet());
@@ -152,7 +152,7 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
 
   @Test
   public void
-      should_use_round_robin_when_token_map_returns_no_replicas_using_session_keyspace_and_routing_key() {
+  should_use_round_robin_when_token_map_returns_no_replicas_using_session_keyspace_and_routing_key() {
     // Given
     given(request.getKeyspace()).willReturn(null);
     given(request.getRoutingKeyspace()).willReturn(null);
@@ -167,7 +167,7 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
 
   @Test
   public void
-      should_use_round_robin_when_token_map_returns_no_replicas_using_request_keyspace_and_routing_token() {
+  should_use_round_robin_when_token_map_returns_no_replicas_using_request_keyspace_and_routing_token() {
     // Given
     given(request.getKeyspace()).willReturn(null);
     given(request.getRoutingKeyspace()).willReturn(KEYSPACE);
@@ -188,21 +188,21 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
     // Then
     verify(appender).doAppend(loggingEventCaptor.capture());
     assertThat(loggingEventCaptor.getValue().getFormattedMessage())
-        .contains("Unexpected error while trying to compute query plan");
+            .contains("Unexpected error while trying to compute query plan");
   }
 
   protected void assertRoundRobinQueryPlans() {
     for (int i = 0; i < 3; i++) {
       assertThat(policy.newQueryPlan(request, session))
-          .containsExactly(node1, node2, node3, node4, node5);
+              .containsExactly(node1, node2, node3, node4, node5);
       assertThat(policy.newQueryPlan(request, session))
-          .containsExactly(node2, node3, node4, node5, node1);
+              .containsExactly(node2, node3, node4, node5, node1);
       assertThat(policy.newQueryPlan(request, session))
-          .containsExactly(node3, node4, node5, node1, node2);
+              .containsExactly(node3, node4, node5, node1, node2);
       assertThat(policy.newQueryPlan(request, session))
-          .containsExactly(node4, node5, node1, node2, node3);
+              .containsExactly(node4, node5, node1, node2, node3);
       assertThat(policy.newQueryPlan(request, session))
-          .containsExactly(node5, node1, node2, node3, node4);
+              .containsExactly(node5, node1, node2, node3, node4);
     }
   }
 
@@ -214,13 +214,13 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
 
     // node3 always first, round-robin on the rest
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node1, node2, node4, node5);
+            .containsExactly(node3, node1, node2, node4, node5);
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node2, node4, node5, node1);
+            .containsExactly(node3, node2, node4, node5, node1);
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node4, node5, node1, node2);
+            .containsExactly(node3, node4, node5, node1, node2);
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node5, node1, node2, node4);
+            .containsExactly(node3, node5, node1, node2, node4);
 
     // Should not shuffle replicas since there is only one
     verify(policy, never()).shuffleHead(any(), anyInt());
@@ -233,11 +233,11 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
     when(tokenMap.getReplicas(KEYSPACE, ROUTING_KEY)).thenReturn(ImmutableSet.of(node3, node5));
 
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node5, node1, node2, node4);
+            .containsExactly(node3, node5, node1, node2, node4);
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node5, node2, node4, node1);
+            .containsExactly(node3, node5, node2, node4, node1);
     assertThat(policy.newQueryPlan(request, session))
-        .containsExactly(node3, node5, node4, node1, node2);
+            .containsExactly(node3, node5, node4, node1, node2);
 
     verify(policy, times(3)).shuffleHead(any(), eq(2));
     // No power of two choices with only two replicas
@@ -248,21 +248,21 @@ public class BasicLoadBalancingPolicyQueryPlanTest extends LoadBalancingPolicyTe
     // Use a subclass to disable shuffling, we just spy to make sure that the shuffling method was
     // called (makes tests easier)
     BasicLoadBalancingPolicy policy =
-        spy(
-            new BasicLoadBalancingPolicy(context, DriverExecutionProfile.DEFAULT_NAME) {
-              @Override
-              protected void shuffleHead(Object[] currentNodes, int headLength) {
-                // nothing (keep in same order)
-              }
-            });
+            spy(
+                    new BasicLoadBalancingPolicy(context, DriverExecutionProfile.DEFAULT_NAME) {
+                      @Override
+                      protected void shuffleHead(Object[] currentNodes, int headLength) {
+                        // nothing (keep in same order)
+                      }
+                    });
     policy.init(
-        ImmutableMap.of(
-            UUID.randomUUID(), node1,
-            UUID.randomUUID(), node2,
-            UUID.randomUUID(), node3,
-            UUID.randomUUID(), node4,
-            UUID.randomUUID(), node5),
-        distanceReporter);
+            ImmutableMap.of(
+                    UUID.randomUUID(), node1,
+                    UUID.randomUUID(), node2,
+                    UUID.randomUUID(), node3,
+                    UUID.randomUUID(), node4,
+                    UUID.randomUUID(), node5),
+            distanceReporter);
     assertThat(policy.getLiveNodes().dc("dc1")).containsExactly(node1, node2, node3, node4, node5);
     return policy;
   }

@@ -17,6 +17,7 @@ package com.datastax.oss.driver.internal.core.loadbalancing;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
+import com.datastax.oss.driver.api.core.config.DefaultDriverOption;
 import com.datastax.oss.driver.api.core.config.DriverExecutionProfile;
 import com.datastax.oss.driver.api.core.context.DriverContext;
 import com.datastax.oss.driver.api.core.metadata.Node;
@@ -36,9 +37,48 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
+
+import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The load balancing policy that considers both the latency and the number of in-flight requests
+ *
+ * <p>To activate this policy, modify the {@code basic.load-balancing-policy} section in the driver
+ * configuration, for example:
+ *
+ * <pre>
+ * datastax-java-driver {
+ *   basic.load-balancing-policy {
+ *     class = LatencyAndInflightCountLoadBalancingPolicy
+ *     local-datacenter = datacenter1
+ *   }
+ * }
+ * </pre>
+ *
+ * <p>See {@code reference.conf} (in the manual or core driver JAR) for more details.
+ *
+ * <p><b>Local datacenter</b>: This implementation requires a local datacenter to be defined,
+ * otherwise it will throw an {@link IllegalStateException}. A local datacenter can be supplied
+ * either:
+ *
+ * <ol>
+ *   <li>Programmatically with {@link
+ *       com.datastax.oss.driver.api.core.session.SessionBuilder#withLocalDatacenter(String)
+ *       SessionBuilder#withLocalDatacenter(String)};
+ *   <li>Through configuration, by defining the option {@link
+ *       DefaultDriverOption#LOAD_BALANCING_LOCAL_DATACENTER
+ *       basic.load-balancing-policy.local-datacenter};
+ *   <li>Or implicitly, if and only if no explicit contact points were provided: in this case this
+ *       implementation will infer the local datacenter from the implicit contact point (localhost).
+ * </ol>
+ *
+ * <p><b>Query plan</b>: This implementation differs from the default policy by maintaining an exponential moving
+ * average of the latencies for each node and using this score to exclude the slow replicas. It still reorders the
+ * first two replicas in the query plan based on in-flight requests count, just as the default policy does.
+ */
+@ThreadSafe
 public class LatencyAndInflightCountLoadBalancingPolicy extends DefaultLoadBalancingPolicy {
   private static final Logger LOG =
       LoggerFactory.getLogger(LatencyAndInflightCountLoadBalancingPolicy.class);
@@ -278,12 +318,4 @@ public class LatencyAndInflightCountLoadBalancingPolicy extends DefaultLoadBalan
     }
   }
 
-  protected int getInFlight(@NonNull Node node, @NonNull Session session) {
-    // The cast will always succeed because there's no way to replace the internal session impl
-    ChannelPool pool = ((DefaultSession) session).getPools().get(node);
-    // Note: getInFlight() includes orphaned ids, which is what we want as we need to account
-    // for requests that were cancelled or timed out (since the node is likely to still be
-    // processing them).
-    return (pool == null) ? 0 : pool.getInFlight();
-  }
 }
