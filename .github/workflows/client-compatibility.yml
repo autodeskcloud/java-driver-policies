@@ -8,18 +8,13 @@ on:
 
 jobs:
   install:
-    # if: github.event.pull_request.user.login == 'siyaoishiding'
+    if: github.actor == "SiyaoIsHiding" || github.event_name != "pull_request_target"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         driver_version: [ 4.10.0, 4.11.0, 4.11.1, 4.11.2, 4.11.3, 4.12.0, 4.12.1, 4.13.0, 4.14.0, 4.15.0, 4.16.0, 4.17.0 ]
         
     steps:
-    - name: Show GitHub context   
-      env: 
-        GITHUB_CONTEXT: ${{ toJson(github) }}   
-      run: echo "$GITHUB_CONTEXT"
-      shell: bash
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -38,6 +33,5 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/client 
         sed -i "s|<driver.version>.*<\/driver.version>|<driver.version>${{ matrix.driver_version }}<\/driver.version>|" pom.xml
-        cat pom.xml
-        mvn compile exec:java -Dexec.mainClass="org.example.Main" -DastraToken=${{ secrets.astraToken }} -DdbId=${{ secrets.dbId }}
+        mvn compile exec:java -Dexec.mainClass="org.example.Main" -DastraToken=${{ secrets.ASTRATOKEN }} -DdbId=${{ secrets.DBID }}
         
