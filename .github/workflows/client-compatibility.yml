@@ -8,7 +8,7 @@ on:
 
 jobs:
   install:
-    if: github.event.pull_request.user.login == 'siyaoishiding'
+    # if: github.event.pull_request.user.login == 'siyaoishiding'
     runs-on: ubuntu-latest
     strategy:
       matrix:
