@@ -8,7 +8,7 @@ on:
 
 jobs:
   install:
-    if: github.actor == "SiyaoIsHiding" || github.event_name != "pull_request_target"
+    if: github.actor == 'SiyaoIsHiding' || github.event_name != 'pull_request_target'
     runs-on: ubuntu-latest
     strategy:
       matrix:
